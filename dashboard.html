@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#1a472a" name="theme-color"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<title>Student Dashboard | CCST</title>
+<style>
+        /* NEW THEME: Dots halftone grunge brush yellow green with white on dark green */
+        :root {
+            --primary: #6b8e23; /* Yellow Green/Olive Drab */
+            --primary-light: #9acd32; /* Yellow Green */
+            --primary-dark: #1a472a; /* Dark Green */
+            --bg: #f5f5dc; /* Beige background */
+            --success: #556b2f; /* Dark Olive Green */
+            --danger: #8b0000; /* Dark Red */
+            --warning: #daa520; /* Goldenrod */
+            --sidebar-bg: #1a472a; /* Dark Green */
+            --card-shadow: 0 4px 15px rgba(26, 71, 42, 0.15);
+            --white: #ffffff;
+            --text-dark: #2f4f2f; /* Dark Slate Gray */
+        }
+
+        /* Halftone dots background pattern */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            background-image: radial-gradient(circle, rgba(107, 142, 35, 0.1) 1px, transparent 1px);
+            background-size: 8px 8px;
+            color: var(--text-dark);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            /* Grunge brush texture effect */
+            background-image:
+                linear-gradient(135deg, rgba(85, 107, 47, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.05) 0%, transparent 30%),
+                radial-gradient(circle at 80% 70%, rgba(0,0,0,0.1) 0%, transparent 40%);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+
+        .profile-pic-sidebar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-light);
+            cursor: pointer;
+            transition: transform 0.3s, border-color 0.3s;
+            box-shadow: 0 0 15px rgba(154, 205, 50, 0.3);
+        }
+
+        .profile-pic-sidebar:hover {
+            transform: scale(1.1);
+            border-color: white;
+        }
+
+        .sidebar-header h3 {
+            color: white;
+            font-size: 1rem;
+            margin-top: 12px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-header p {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-top: 4px;
+            color: var(--primary-light);
+        }
+
+        .menu-item {
+            padding: 14px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255,255,255,0.85);
+            text-decoration: none;
+            transition: 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: rgba(107, 142, 35, 0.3);
+            color: white;
+            border-left-color: var(--primary-light);
+        }
+
+        .menu-item i {
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+            color: var(--primary-light);
+        }
+
+        .menu-item.active i { color: white; }
+
+        .menu-item .badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(26, 71, 42, 0.25);
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 25px;
+            border: 2px solid rgba(107, 142, 35, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .card-header h3 { color: var(--primary-dark); }
+
+        /* Profile Section */
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary-light);
+            box-shadow: 0 4px 12px rgba(26, 71, 42, 0.2);
+            cursor: pointer;
+        }
+
+        .profile-info h2 {
+            margin-bottom: 5px;
+            color: var(--primary-dark);
+        }
+
+        .profile-info p { color: #666; font-size: 0.95rem; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .cleared { background: var(--success); color: white; }
+        .not-cleared { background: var(--danger); color: white; }
+        .pending { background: var(--warning); color: white; }
+
+        /* Academic Results */
+        .semester-card {
+            border-left: 5px solid var(--primary);
+            padding: 20px;
+            background: linear-gradient(to right, rgba(107, 142, 35, 0.05), transparent);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .semester-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .gpa-badge {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid rgba(107, 142, 35, 0.2);
+        }
+
+        .course-header {
+            font-weight: bold;
+            color: var(--primary-dark);
+            font-size: 0.85rem;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(107, 142, 35, 0.2);
+        }
+
+        .course-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .grade-a { color: var(--success); font-weight: bold; }
+        .grade-b { color: var(--primary); font-weight: bold; }
+        .grade-c { color: var(--warning); font-weight: bold; }
+        .grade-d { color: #cd853f; font-weight: bold; }
+        .grade-f { color: var(--danger); font-weight: bold; }
+
+        /* UCC Grading Scale */
+        .grading-scale {
+            background: linear-gradient(135deg, rgba(107, 142, 35, 0.1), rgba(154, 205, 50, 0.1));
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid rgba(107, 142, 35, 0.3);
+        }
+
+        .grading-scale h4 { margin-bottom: 10px; color: var(--primary-dark); }
+
+        .grade-table {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .grade-item {
+            text-align: center;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid rgba(107, 142, 35, 0.2);
+        }
+
+        .grade-item .points { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
+        .grade-item .letter { font-size: 1rem; font-weight: bold; }
+        .grade-item .range { font-size: 0.8rem; color: #666; }
+
+        /* Finance Section */
+        .finance-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .finance-card {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .finance-card.total { background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); }
+        .finance-card.paid { background: linear-gradient(135deg, var(--success) 0%, #8fbc8f 100%); }
+        .finance-card.balance { background: linear-gradient(135deg, var(--danger) 0%, #cd5c5c 100%); }
+        .finance-card.cgpa { background: linear-gradient(135deg, var(--warning) 0%, #f0e68c 100%); color: var(--text-dark); }
+
+        .finance-card h4 { font-size: 0.9rem; opacity: 0.9; }
+        .finance-card h2 { font-size: 1.8rem; margin-top: 5px; }
+
+        .payment-history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: linear-gradient(to right, rgba(107, 142, 35, 0.05), transparent);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .payment-details strong { display: block; }
+        .payment-details small { color: #666; }
+        .payment-amount { font-weight: bold; color: var(--success); }
+
+        /* Notifications */
+        .notification-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            background: linear-gradient(to right, rgba(107, 142, 35, 0.03), white);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(26, 71, 42, 0.15);
+        }
+
+        .notification-item.unread {
+            border-left-color: var(--warning);
+            background: linear-gradient(to right, rgba(218, 165, 32, 0.1), white);
+        }
+
+        .notification-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .notification-content { flex: 1; }
+        .notification-content h4 { margin-bottom: 5px; color: var(--text-dark); }
+        .notification-content p { color: #666; font-size: 0.9rem; }
+        .notification-meta { font-size: 0.8rem; color: #999; margin-top: 8px; }
+
+        /* Offline Indicator */
+        .offline-indicator {
+            display: none;
+            background: var(--warning);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .offline-indicator.show { display: block; }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            z-index: 10000;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 71, 42, 0.3);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        /* Session Timeout Warning */
+        .session-warning {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--danger);
+            color: white;
+            padding: 10px 30px;
+            border-radius: 0 0 10px 10px;
+            z-index: 10001;
+            display: none;
+            font-weight: bold;
+        }
+
+        .session-warning.show { display: block; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-overlay.show { display: block; }
+            .main-content { margin-left: 0; padding: 15px; padding-top: 60px; }
+            .profile-container { flex-direction: column; text-align: center; }
+            .course-grid { grid-template-columns: 1fr 1fr; }
+            .finance-summary { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+</head>
+<body>
+<button class="menu-toggle" onclick="toggleSidebar()">
+<i class="fas fa-bars"></i>
+</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<!-- SIDE MENU -->
+<div class="sidebar">
+<div class="sidebar-header">
+<img class="profile-pic-sidebar" id="sidebarPhoto" onclick="document.getElementById('photoUpload').click()" src="https://via.placeholder.com/80"/>
+<input accept="image/*" id="photoUpload" onchange="uploadPhoto(event)" style="display:none;" type="file"/>
+<h3 id="sidebarName">Student</h3>
+<p id="sidebarDetails">Level 100</p>
+</div>
+<a class="menu-item active" href="#" onclick="showSection('profile')">
+<i class="fas fa-user"></i> Profile
+        </a>
+<a class="menu-item" href="#" onclick="showSection('academic')">
+<i class="fas fa-graduation-cap"></i> Academic
+        </a>
+<a class="menu-item" href="#" onclick="showSection('finance')">
+<i class="fas fa-money-bill-wave"></i> Finance
+        </a>
+<a class="menu-item" href="#" onclick="showSection('notifications')">
+<i class="fas fa-bell"></i> Notifications
+            <span class="badge" id="notifBadge" style="display:none;">0</span>
+</a>
+<hr style="margin: 20px 25px; border-color: rgba(255,255,255,0.1);"/>
+<a class="menu-item" href="#" onclick="logout()">
+<i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+</div>
+<!-- MAIN CONTENT -->
+<div class="main-content">
+<div class="offline-indicator" id="offlineIndicator">
+<i class="fas fa-wifi-slash"></i> You are offline. Viewing cached data.
+        </div>
+<div class="navbar">
+<h3 id="pageTitle">Student Dashboard</h3>
+<div>
+<span id="studentNameHeader" style="margin-right: 15px;"></span>
+<span id="onlineStatus" style="color: #90EE90;"><i class="fas fa-circle" style="font-size: 0.5rem;"></i> Online</span>
+</div>
+</div>
+<!-- PROFILE SECTION -->
+<div class="section" id="profileSection">
+<div class="card">
+<div class="card-header">
+<h3><i class="fas fa-user-circle"></i> My Profile</h3>
+<button onclick="editProfile()" style="background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer;">
+<i class="fas fa-edit"></i> Edit
+                    </button>
+</div>
+<div class="profile-container">
+<img class="profile-pic" id="profilePic" onclick="document.getElementById('photoUpload').click()" src="https://via.placeholder.com/100"/>
+<div class="profile-info">
+<h2 id="profileName">Loading...</h2>
+<p id="profileProgram"></p>
+<p id="profileId" style="color: #999; font-size: 0.85rem;"></p>
+<div class="status-badge" id="clearanceStatus">Checking...</div>
+</div>
+</div>
+</div>
+<div class="card">
+<h3 style="color: var(--primary); margin-bottom: 15px;"><i class="fas fa-info-circle"></i> Account Information</h3>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+<div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+<small style="color: #666;">Student ID</small>
+<p id="infoId" style="font-weight: bold; font-size: 1.1rem;"></p>
+</div>
+<div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+<small style="color: #666;">Program</small>
+<p id="infoProgram" style="font-weight: bold; font-size: 1.1rem;"></p>
+</div>
+<div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+<small style="color: #666;">Level</small>
+<p id="infoLevel" style="font-weight: bold; font-size: 1.1rem;"></p>
+</div>
+<div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+<small style="color: #666;">Academic Status</small>
+<p id="infoStatus" style="font-weight: bold; font-size: 1.1rem;"></p>
+</div>
+</div>
+</div>
+</div>
+<!-- ACADEMIC SECTION -->
+<div class="section" id="academicSection" style="display:none;">
+<div class="card">
+<div class="card-header">
+<h3><i class="fas fa-graduation-cap"></i> Examination Results</h3>
+<select id="semesterFilter" onchange="filterResults()" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd;">
+<option value="all">All Semesters</option>
+</select>
+</div>
+<div id="academicSummary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px;">
+<div class="finance-card cgpa">
+<h4>CGPA</h4>
+<h2 id="cgpaDisplay">--</h2>
+</div>
+<div class="finance-card total">
+<h4>Total Credits</h4>
+<h2 id="totalCredits">--</h2>
+</div>
+<div class="finance-card paid">
+<h4>Status</h4>
+<h2 id="academicStatus">--</h2>
+</div>
+</div>
+<div id="resultsContainer">
+<p style="text-align: center; color: #999; padding: 40px;">Loading academic records...</p>
+</div>
+<div class="grading-scale">
+<h4><i class="fas fa-table"></i> UCC Grading System</h4>
+<div class="grade-table">
+<div class="grade-item">
+<div class="points">4.0</div>
+<div class="letter" style="color: #27ae60;">A</div>
+<div class="range">80-100%</div>
+</div>
+<div class="grade-item">
+<div class="points">3.5</div>
+<div class="letter" style="color: #3498db;">B+</div>
+<div class="range">75-79%</div>
+</div>
+<div class="grade-item">
+<div class="points">3.0</div>
+<div class="letter" style="color: #3498db;">B</div>
+<div class="range">70-74%</div>
+</div>
+<div class="grade-item">
+<div class="points">2.5</div>
+<div class="letter" style="color: #f39c12;">C+</div>
+<div class="range">65-69%</div>
+</div>
+<div class="grade-item">
+<div class="points">2.0</div>
+<div class="letter" style="color: #f39c12;">C</div>
+<div class="range">60-64%</div>
+</div>
+<div class="grade-item">
+<div class="points">1.5</div>
+<div class="letter" style="color: #e67e22;">D</div>
+<div class="range">55-59%</div>
+</div>
+<div class="grade-item">
+<div class="points">1.0</div>
+<div class="letter" style="color: #e74c3c;">E</div>
+<div class="range">50-54%</div>
+</div>
+<div class="grade-item">
+<div class="points">0.0</div>
+<div class="letter" style="color: #e74c3c;">F</div>
+<div class="range">0-49%</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- FINANCE SECTION -->
+<div class="section" id="financeSection" style="display:none;">
+<div class="card">
+<div class="card-header">
+<h3><i class="fas fa-money-bill-wave"></i> Financial Summary</h3>
+</div>
+<div class="finance-summary">
+<div class="finance-card total">
+<h4><i class="fas fa-wallet"></i> Total Semester Fee</h4>
+<h2 id="totalFee">GH₵0.00</h2>
+</div>
+<div class="finance-card paid">
+<h4><i class="fas fa-check-circle"></i> Amount Paid</h4>
+<h2 id="amountPaid">GH₵0.00</h2>
+</div>
+<div class="finance-card balance">
+<h4><i class="fas fa-exclamation-circle"></i> Balance</h4>
+<h2 id="balance">GH₵0.00</h2>
+</div>
+<div class="finance-card cgpa" style="background: linear-gradient(135deg, #8b0000 0%, #cd5c5c 100%); color: white;">
+<h4><i class="fas fa-history"></i> Arrears</h4>
+<h2 id="arrears">GH₵0.00</h2>
+</div>
+</div>
+<div id="clearanceStatusFinance" style="padding: 15px; border-radius: 8px; font-weight: bold; margin-bottom: 20px; display: none;"></div>
+<h4 style="color: var(--primary); margin-bottom: 15px;"><i class="fas fa-history"></i> Payment History</h4>
+<div id="paymentHistory">
+<p style="text-align: center; color: #999;">No payment records found.</p>
+</div>
+</div>
+</div>
+<!-- NOTIFICATIONS SECTION -->
+<div class="section" id="notificationsSection" style="display:none;">
+<div class="card">
+<div class="card-header">
+<h3><i class="fas fa-bell"></i> Campus Notifications</h3>
+<button onclick="markAllRead()" style="background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer;">
+<i class="fas fa-check-double"></i> Mark All Read
+                    </button>
+</div>
+<div id="notificationList">
+<p style="text-align: center; color: #999; padding: 40px;">Loading notifications...</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Session Timeout Warning -->
+<div class="session-warning" id="sessionWarning">
+<i class="fas fa-clock"></i> Session expires in <span id="sessionTimer">5:00</span> - Move mouse to stay active
+    </div>
+<script>
+        // 1. CONFIGURATION & STATE
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxEQFVYYKL2yvSC5xj7EEKP_-WfQnP-vnn_7pmW-AuM86gG0mlE32VKMlACGdn4yvpP/exec";
+        let studentData = null;
+        let userResults = [];
+        let db;
+
+        // 2. GRADE HELPERS
+        function getGradeClass(grade) {
+            if (!grade) return '';
+            const g = String(grade).toUpperCase().trim();
+            if (g === 'A') return 'grade-a';
+            if (g.startsWith('B')) return 'grade-b';
+            if (g.startsWith('C')) return 'grade-c';
+            if (g === 'F') return 'grade-f';
+            return '';
+        }
+
+        function normalizeCourses(details) {
+            if (!details) return [];
+            if (Array.isArray(details)) return details;
+            try {
+                return JSON.parse(details);
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function normalizeResultRecord(result) {
+            return {
+                semester: result?.semester || 'Other',
+                gpa: result?.gpa || '0.00',
+                details: normalizeCourses(result?.details)
+            };
+        }
+
+        function formatMoney(value) {
+            const amount = Number(value || 0);
+            return `GHS ${amount.toLocaleString()}`;
+        }
+
+        // 3. IMAGE UPLOADER
+        async function uploadPhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 300;
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+                    document.getElementById('profilePic').src = compressedBase64;
+                    document.getElementById('sidebarPhoto').src = compressedBase64;
+                    if (studentData?.profile) {
+                        studentData.profile.photoUrl = compressedBase64;
+                        localStorage.setItem('userData', JSON.stringify(studentData));
+                    }
+                    savePhotoToServer(compressedBase64);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function savePhotoToServer(base64Data) {
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'upload_photo',
+                        id: studentData.profile.id,
+                        photoData: base64Data
+                    })
+                });
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.message || 'Upload failed');
+                }
+                showToast('Profile photo synced to server!', 'success');
+            } catch (error) {
+                console.error('Photo upload error:', error);
+                showToast('Offline: Photo saved locally only', 'warning');
+            }
+        }
+
+        // 4. DISPLAY ACADEMIC RESULTS
+        function displayFilteredTable(results) {
+            const container = document.getElementById('resultsContainer');
+            const normalized = (results || []).map(normalizeResultRecord).filter(r => r.details.length || r.semester || r.gpa);
+
+            if (!normalized.length) {
+                container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">No results found.</div>';
+                return;
+            }
+
+            const grouped = {};
+            normalized.forEach(result => {
+                if (!grouped[result.semester]) grouped[result.semester] = [];
+                grouped[result.semester].push(result);
+            });
+
+            let html = '';
+            Object.keys(grouped).forEach((semester) => {
+                const semesterResults = grouped[semester];
+                const semGPA = semesterResults[0]?.gpa || '0.00';
+                const courses = semesterResults.flatMap(item => item.details || []);
+                html += `
+                    <div class="semester-card">
+                        <div class="semester-header">
+                            <h3>${semester}</h3>
+                            <div class="gpa-badge">GPA: ${semGPA}</div>
+                        </div>
+                        <div class="course-grid">
+                            <div class="course-header">Course Title</div>
+                            <div class="course-header" style="text-align:center">Credits</div>
+                            <div class="course-header" style="text-align:center">Grade</div>
+                            ${courses.length ? courses.map((course) => {
+                                const grade = course.grade || 'N/A';
+                                const title = course.name || course.courseName || course.code || 'Untitled Course';
+                                const credits = course.credits || course.credit || course.unit || '-';
+                                return `
+                                    <div class="course-item">${title}</div>
+                                    <div class="course-item" style="text-align:center">${credits}</div>
+                                    <div class="course-item ${getGradeClass(grade)}" style="text-align:center">${grade}</div>
+                                `;
+                            }).join('') : '<div class="course-item" style="grid-column: 1 / span 3; text-align:center;">No course breakdown available.</div>'}
+                        </div>
+                    </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function hydrateProfile(profile) {
+            document.getElementById('userName').innerText = profile.name || 'Student';
+            document.getElementById('userLevel').innerText = profile.level || '-';
+            document.getElementById('profileName').innerText = profile.name || '-';
+            document.getElementById('profileID').innerText = profile.id || '-';
+            document.getElementById('profileProgram').innerText = profile.program || '-';
+            const feesValue = profile.arrears ?? profile.balance ?? 0;
+            const feeNode = document.getElementById('profileFees');
+            if (feeNode) feeNode.innerText = formatMoney(feesValue);
+
+            if (profile.photoUrl) {
+                document.getElementById('profilePic').src = profile.photoUrl;
+                document.getElementById('sidebarPhoto').src = profile.photoUrl;
+            }
+        }
+
+        // 5. DATA FETCHING & UI NAVIGATION
+        async function fetchStudentData() {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?action=get_student_data&id=${encodeURIComponent(studentData.profile.id)}`);
+                const data = await response.json();
+                if (!data.success || !data.profile) {
+                    throw new Error(data.error || 'Unable to load student data');
+                }
+                studentData = data;
+                userResults = data.results || [];
+                localStorage.setItem('userData', JSON.stringify(data));
+                localStorage.setItem('userResults', JSON.stringify(userResults));
+                hydrateProfile(data.profile);
+                displayFilteredTable(userResults);
+            } catch (error) {
+                console.log('Using cached data...', error);
+                displayFilteredTable(userResults);
+            }
+        }
+
+        function showSection(sectionId, evt) {
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            document.querySelectorAll('.sidebar-nav a, .menu-item').forEach(link => link.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            const trigger = evt || window.event;
+            trigger?.currentTarget?.classList?.add('active');
+        }
+
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        function logout() {
+            if (confirm('Logout of your CCST Portal?')) {
+                localStorage.removeItem('userData');
+                localStorage.removeItem('userResults');
+                localStorage.removeItem('studentId');
+                window.location.replace('index.html');
+            }
+        }
+
+        // 6. INITIALIZATION
+        window.onload = async function () {
+            const storedData = localStorage.getItem('userData');
+            if (!storedData) {
+                window.location.replace('index.html');
+                return;
+            }
+
+            studentData = JSON.parse(storedData);
+            if (!studentData.profile) {
+                window.location.replace('index.html');
+                return;
+            }
+
+            userResults = JSON.parse(localStorage.getItem('userResults') || '[]');
+            hydrateProfile(studentData.profile);
+            displayFilteredTable(userResults);
+            await fetchStudentData();
+            showSection('profile');
+        };
+
+    </script>
+</body>
+</html>
